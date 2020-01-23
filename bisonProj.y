@@ -7,26 +7,28 @@
 
 %union {
 	char* str;
+	//LIST
 }
 
 %token<str> VAR
 %token LOAD SAVE SELECT PRINT AS FROM  
 
+%type<str> listvar
 %%
 
 sql : program { printf("first function (startTable)"); };
 
 program : comand
-	| comand program
+	| comand program { printf("command program %s", $1); }
 	;
 
 comand : SELECT listvar FROM VAR AS VAR ';' 	{ printf("SELECT  %s | %s ", $4, $6); }
-	| PRINT listvar FROM VAR ';' 		{ printf("PRINT %s ", $4); }
-	| LOAD '"'VAR'"' AS VAR ';'		{ printf("works!"); }
+	| PRINT listvar FROM VAR ';' 		{ printf("[PRINT] listvar = %s | VAR = %s \n ", $2, $4); }
+	| LOAD '"'VAR'"' AS VAR ';'		{ /*$$ = LoadTable(NULL, $3, $6 );*/ $$ = 'teste'; }
 	;
 
-listvar : VAR 					{ printf("VAR = %s", $1); }
-	| listvar ',' VAR 			{ printf("listar = %s | VAR = ", $3); }
+listvar : VAR 					{ printf("%s \n", $1); }
+	| listvar ',' VAR 			{ printf("listvar = %s | VAR = %s \n", $1, $3); }
 	;
 
 %%

@@ -8,10 +8,16 @@
 %%
 
 LOAD|load	{  return LOAD; }
+AS|as		{ return AS; }
 
 SAVE|save 	{  return SAVE; }
 
-([A-Za-z0-9]+)\.[a-z]+	{  yylval.str = strdup(yytext); return VAR; }
+PRINT|print	{ return PRINT; }
+FROM|from	{ return FROM; }
+
+[a-z][.a-zA-Z0-9]*	{  yylval.str = strdup(yytext); return VAR; }
+
+[ \n\t]+	{}
 
 .		{ return yytext[0]; }
 

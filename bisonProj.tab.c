@@ -121,8 +121,9 @@ union YYSTYPE
 #line 8 "bisonProj.y" /* yacc.c:355  */
 
 	char* str;
+	//LIST
 
-#line 126 "bisonProj.tab.c" /* yacc.c:355  */
+#line 127 "bisonProj.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -139,7 +140,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 143 "bisonProj.tab.c" /* yacc.c:358  */
+#line 144 "bisonProj.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -437,7 +438,7 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    17,    17,    19,    20,    23,    24,    25,    28,    29
+       0,    19,    19,    21,    22,    25,    26,    27,    30,    31
 };
 #endif
 
@@ -1215,43 +1216,43 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 17 "bisonProj.y" /* yacc.c:1646  */
+#line 19 "bisonProj.y" /* yacc.c:1646  */
     { printf("first function (startTable)"); }
-#line 1221 "bisonProj.tab.c" /* yacc.c:1646  */
+#line 1222 "bisonProj.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 23 "bisonProj.y" /* yacc.c:1646  */
+#line 25 "bisonProj.y" /* yacc.c:1646  */
     { printf("SELECT  %s | %s ", (yyvsp[-3].str), (yyvsp[-1].str)); }
-#line 1227 "bisonProj.tab.c" /* yacc.c:1646  */
+#line 1228 "bisonProj.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 24 "bisonProj.y" /* yacc.c:1646  */
-    { printf("PRINT %s ", (yyvsp[-1].str)); }
-#line 1233 "bisonProj.tab.c" /* yacc.c:1646  */
+#line 26 "bisonProj.y" /* yacc.c:1646  */
+    { printf("[PRINT] listvar = %s | VAR = %s \n ", (yyvsp[-3].str), (yyvsp[-1].str)); }
+#line 1234 "bisonProj.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 25 "bisonProj.y" /* yacc.c:1646  */
-    { printf("works!"); }
-#line 1239 "bisonProj.tab.c" /* yacc.c:1646  */
+#line 27 "bisonProj.y" /* yacc.c:1646  */
+    { /*$$ = LoadTable(NULL, $3, $6 );*/printf("works!"); }
+#line 1240 "bisonProj.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 28 "bisonProj.y" /* yacc.c:1646  */
-    { printf("VAR = %s", (yyvsp[0].str)); }
-#line 1245 "bisonProj.tab.c" /* yacc.c:1646  */
+#line 30 "bisonProj.y" /* yacc.c:1646  */
+    { printf("%s \n", (yyvsp[0].str)); }
+#line 1246 "bisonProj.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 29 "bisonProj.y" /* yacc.c:1646  */
-    { printf("listar = %s | VAR = ", (yyvsp[0].str)); }
-#line 1251 "bisonProj.tab.c" /* yacc.c:1646  */
+#line 31 "bisonProj.y" /* yacc.c:1646  */
+    { printf("listvar = %s | VAR = %s \n", (yyvsp[-2].str), (yyvsp[0].str)); }
+#line 1252 "bisonProj.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1255 "bisonProj.tab.c" /* yacc.c:1646  */
+#line 1256 "bisonProj.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1479,7 +1480,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 32 "bisonProj.y" /* yacc.c:1906  */
+#line 34 "bisonProj.y" /* yacc.c:1906  */
 
 
 int yyerror(char* message) {

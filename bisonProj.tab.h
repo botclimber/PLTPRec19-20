@@ -63,8 +63,9 @@ union YYSTYPE
 #line 8 "bisonProj.y" /* yacc.c:1909  */
 
 	char* str;
+	//LIST
 
-#line 68 "bisonProj.tab.h" /* yacc.c:1909  */
+#line 69 "bisonProj.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;
