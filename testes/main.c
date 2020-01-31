@@ -52,10 +52,9 @@ int num_col(titles *titulos, char *name);
 //SELECT nr, nota1, nota3 FROM notas AS pauta WHERE nota2 < nota3;
 void SelectComplex(char *columns, char *name_tab, char *new_tab, char *column4, char *operador, char *column5);
 lines *SelectLinesOPR(lines *linha, int col1, int col2, int col3, int col4, int col5, char *operador);
-cells *PrintCells(cells *point, int col1, int col2, int col3, int count);
 //PRINT * FROM notas WHERE nota3 < 10;
-void PrintAll(char *name_tab, char *column1, char *operador, float grade);
-void PrintAllSimple(lines *linha, int col1, char *operador, float grade);
+void PrintAll(char *name_tab, char *column1, char *operador, int grade);
+void PrintAllSimple(lines *linha, int col1, char *operador, int grade);
 //SELECT * FROM notas AS pauta WHERE nota2 < nota3;
 void SelectAll(char *name_tab, char *new_tab, char *column1, char *operador, char *column2);
 titles *SelectAllTitles(titles *titulo);
@@ -68,8 +67,42 @@ char *dataStr(char *param1, char *param2); // CONCATENA
 //Funções
 int main(){
 
-	yyparse();
-	return 0;
+        //LOAD "ficheiro.tsv" AS notas;
+	LoadTable("teste.txt", "hoje1");
+	printf("Com sucesso1!\n\n");
+        LoadTable("teste2.txt", "hoje2");
+	printf("Com sucesso2!\n\n");
+        LoadTable("teste3.txt", "hoje3");
+	printf("Com sucesso3!\n\n");
+        //PRINT nr, nota1 FROM notas;
+        Print2Columns("nota3,nota1", "hoje3");
+        printf("\n\n");
+        //PRINT nr, nota1 FROM notas WHERE nota3 < 10;
+        Print2ColumnsVAL("nota1,nota2", "hoje2", "notaF", ">=", 10);
+        puts("\n\n");
+        //PRINT nr, nota1 FROM notas WHERE nota3 < nota1;
+        Print2ColumnsOPR("nota1,nota2", "hoje1", "nota3", "<", "nota1");
+        puts("\n\n");
+        //SELECT nr, nota1, nota3 FROM notas AS pauta;
+        SelectSimple("nr,nota2,nota1", "hoje3", "hoje4");
+        Print2Columns("nr,nota1", "hoje4");
+        puts("\n\n");
+        //SELECT nr, nota1, nota3 FROM notas AS pauta WHERE nota2 < nota3;
+        SelectComplex("nr,nota1,nota3", "hoje3", "hoje5", "nota1", "<", "nota3");
+        Print2Columns("nr,nota3", "hoje5");
+        puts("\n\n");
+        //PRINT * FROM notas WHERE nota3 < 10;
+        PrintAll("hoje3", "nota1", "<", 20);
+        puts("\n\n");
+        //SELECT * FROM notas AS pauta WHERE nota2 < nota3;
+        SelectAll("hoje3", "daniel", "nr", "<", "nota2");
+        PrintAll("daniel", "nota1", "<", 20);
+        puts("\n\n");
+        //SAVE notas AS "ficheiro2.tsv";
+        SaveTable("hoje4", "danielPanilas.txt");
+        system("pause");
+	/*yyparse();
+	return 0;*/
 }
 
 char *dataStr(char *param1, char *param2){
@@ -786,7 +819,6 @@ void SelectSimple(char *columns, char *name_tab, char *new_tab){
          aux_t=aux_t->next;
      }   
     }
-
     if((strcmp(aux_t->nome, new_tab))==0){
         new->next=aux_t->next->next;
              aux_t->next=new;
@@ -794,11 +826,10 @@ void SelectSimple(char *columns, char *name_tab, char *new_tab){
     }else{
         aux_t->next=new;
     }
-
 }
 
 titles *SelectTitles(char *column1, char *column2, char *column3, int count){
-    titles *aux = NULL;
+    titles *aux;
 
     aux=(titles *)malloc(sizeof(titles));
     
@@ -835,11 +866,7 @@ lines *SelectLines(lines *linha, int col1, int col2, int col3) {
     if (aux != NULL) {
         new = (lines *) malloc(sizeof (lines));
         new->cell = SelectCells(aux->cell, col1, col2, col3, 1);
-	if(aux->next != NULL) 
-	        new->next = SelectLines(aux->next, col1, col2, col3);
-    	else
-		new->next = NULL;
-	
+        new->next = SelectLines(aux->next, col1, col2, col3);
     } else {
         return NULL;
     }
@@ -875,7 +902,7 @@ cells *SelectCells(cells *celula, int col1, int col2, int col3, int count) {
 }
 
 void SelectComplex(char *columns, char *name_tab, char *new_tab, char *column4, char *operador, char *column5) {
-    tabels *aux_t = t, *new, *aux_tt;
+    tabels *aux_t = t, *new;
     int col1, col2, col3, col4, col5;
 	
 	/*------------- SPLIT MADE BY PROFESSIONAL DEVELOPER -----------------*/
@@ -894,7 +921,7 @@ void SelectComplex(char *columns, char *name_tab, char *new_tab, char *column4, 
 		strcpy(cols[i], token); i++;
 		token = strtok(NULL, ",");
 	}
-	/*-------------------------------------------------------------------*/		
+	/*-------------------------------------------------------------------*/	
 
     if ((strcmp(operador, "<")) != 0 && (strcmp(operador, "<=")) != 0 && (strcmp(operador, ">")) != 0 && (strcmp(operador, ">=")) != 0 && (strcmp(operador, "=")) != 0 && (strcmp(operador, "==")) != 0 && (strcmp(operador, "!=")) != 0) {
         printf("Operador nao reconhecido!\n");
@@ -923,16 +950,13 @@ void SelectComplex(char *columns, char *name_tab, char *new_tab, char *column4, 
     }
 
     aux_t = t;
-    aux_tt=t->next;
+
     if ((strcmp(aux_t->nome, new_tab)) == 0) {
         new->next = aux_t->next;
         t = new;
         return;
-    } else if(aux_tt ==NULL){
-        aux_t->next=new;
-        return;
-    }else{
-        while (aux_t->next != NULL) {
+    } else {
+        while (aux_t->next->next != NULL) {
             if ((strcmp(aux_t->next->nome, new_tab)) == 0) {
                 new->next = aux_t->next->next;
                 aux_t->next = new;
@@ -941,7 +965,7 @@ void SelectComplex(char *columns, char *name_tab, char *new_tab, char *column4, 
             aux_t = aux_t->next;
         }
     }
-    if ((strcmp(aux_t->nome, new_tab)) == 0) {
+    if ((strcmp(aux_t->next->nome, new_tab)) == 0) {
         new->next = aux_t->next->next;
         aux_t->next = new;
         return;
@@ -950,43 +974,10 @@ void SelectComplex(char *columns, char *name_tab, char *new_tab, char *column4, 
     }
 }
 
-cells *PrintCells(cells *point, int col1, int col2, int col3, int count){
-
-    cells *aux=point, *new;
-    switch (count){
-
-        case 1:
-            new = (cells *) malloc(sizeof (cells));
-            for(int i=1; i<col1; i++)
-                aux=aux->next;
-            new->val=aux->val;
-            new->next=PrintCells(point, col1, col2, col3, 2);
-            break;
-
-        case 2:
-            new = (cells *) malloc(sizeof (cells));
-            for(int i=1; i<col2; i++)
-                aux=aux->next;
-            new->val=aux->val;
-            new->next=PrintCells(point, col1, col2, col3, 3);
-            break;
-
-        case 3:
-            new = (cells *) malloc(sizeof (cells));
-            for(int i=1; i<col3; i++)
-                aux=aux->next;
-            new->val=aux->val;
-            new->next=NULL;
-            break;
-    }
-    return new;
-
-}
-
 lines *SelectLinesOPR(lines *linha, int col1, int col2, int col3, int col4, int col5, char *operador) {
     float val1, val2;
     cells *aux_c=linha->cell;
-    lines *new= (lines *)malloc(sizeof(lines));
+    lines *new;
 
     if (linha !=NULL) {
         aux_c = linha->cell;
@@ -999,19 +990,15 @@ lines *SelectLinesOPR(lines *linha, int col1, int col2, int col3, int col4, int 
                 aux_c = aux_c->next;
             val2 = aux_c->val;
             if (val1 < val2) {
-                new->cell = PrintCells(linha->cell, col1, col2, col3, 1);
-                if (linha->next != NULL)
-                    new->next = SelectLinesOPR(linha->next, col1, col2, col3, col4, col5, operador);
-                else{
+                new = (lines *) malloc(sizeof (lines));
+                new->cell = SelectCells(linha->cell, col1, col2, col3, 1);
+                if(linha->next == NULL)
                     new->next=NULL;
-                    return new;
-                }
-            } else {
-                if (linha->next != NULL) {
-                    free(new);
-                    return SelectLinesOPR(linha->next, col1, col2, col3, col4, col5, operador);
-                } else
-                    return NULL;
+                else           
+                    new->next = SelectLinesOPR(linha->next, col1, col2, col3, col4, col5, operador);
+            }else{
+                new=NULL;
+                new=SelectLinesOPR(linha->next, col1, col2, col3, col4, col5, operador);
             }
                 
         } else if ((strcmp(operador, "<=")) == 0) {
@@ -1023,19 +1010,15 @@ lines *SelectLinesOPR(lines *linha, int col1, int col2, int col3, int col4, int 
                 aux_c = aux_c->next;
             val2 = aux_c->val;
             if (val1 <= val2) {
-                new->cell = PrintCells(linha->cell, col1, col2, col3, 1);
-                if (linha->next != NULL)
-                    new->next = SelectLinesOPR(linha->next, col1, col2, col3, col4, col5, operador);
-                else{
+                new = (lines *) malloc(sizeof (lines));
+                new->cell = SelectCells(linha->cell, col1, col2, col3, 1);
+                if(linha->next == NULL)
                     new->next=NULL;
-                    return new;
-                }
-            } else {
-                if (linha->next != NULL) {
-                    free(new);
-                    return SelectLinesOPR(linha->next, col1, col2, col3, col4, col5, operador);
-                } else
-                    return NULL;
+                else           
+                    new->next = SelectLinesOPR(linha->next, col1, col2, col3, col4, col5, operador);
+            }else{
+                new=NULL;
+                new=SelectLinesOPR(linha->next, col1, col2, col3, col4, col5, operador);
             }
 
         } else if ((strcmp(operador, ">")) == 0) {
@@ -1047,19 +1030,15 @@ lines *SelectLinesOPR(lines *linha, int col1, int col2, int col3, int col4, int 
                 aux_c = aux_c->next;
             val2 = aux_c->val;
             if (val1 > val2) {
-                new->cell = PrintCells(linha->cell, col1, col2, col3, 1);
-                if (linha->next != NULL)
-                    new->next = SelectLinesOPR(linha->next, col1, col2, col3, col4, col5, operador);
-                else{
+                new = (lines *) malloc(sizeof (lines));
+                new->cell = SelectCells(linha->cell, col1, col2, col3, 1);
+                if(linha->next == NULL)
                     new->next=NULL;
-                    return new;
-                }
-            } else {
-                if (linha->next != NULL) {
-                    free(new);
-                    return SelectLinesOPR(linha->next, col1, col2, col3, col4, col5, operador);
-                } else
-                    return NULL;
+                else           
+                    new->next = SelectLinesOPR(linha->next, col1, col2, col3, col4, col5, operador);
+            }else{
+                new=NULL;
+                new=SelectLinesOPR(linha->next, col1, col2, col3, col4, col5, operador);
             }
 
         } else if ((strcmp(operador, ">=")) == 0) {
@@ -1071,19 +1050,15 @@ lines *SelectLinesOPR(lines *linha, int col1, int col2, int col3, int col4, int 
                 aux_c = aux_c->next;
             val2 = aux_c->val;
             if (val1 >= val2) {
-                new->cell = PrintCells(linha->cell, col1, col2, col3, 1);
-                if (linha->next != NULL)
-                    new->next = SelectLinesOPR(linha->next, col1, col2, col3, col4, col5, operador);
-                else{
+                new = (lines *) malloc(sizeof (lines));
+                new->cell = SelectCells(linha->cell, col1, col2, col3, 1);
+                if(linha->next == NULL)
                     new->next=NULL;
-                    return new;
-                }
-            } else {
-                if (linha->next != NULL) {
-                    free(new);
-                    return SelectLinesOPR(linha->next, col1, col2, col3, col4, col5, operador);
-                } else
-                    return NULL;
+                else           
+                    new->next = SelectLinesOPR(linha->next, col1, col2, col3, col4, col5, operador);
+            }else{
+                new=NULL;
+                new=SelectLinesOPR(linha->next, col1, col2, col3, col4, col5, operador);
             }
 
         } else if ((strcmp(operador, "=")) == 0 || (strcmp(operador, "==")) == 0) {
@@ -1095,19 +1070,15 @@ lines *SelectLinesOPR(lines *linha, int col1, int col2, int col3, int col4, int 
                 aux_c = aux_c->next;
             val2 = aux_c->val;
             if (val1 == val2) {
-                new->cell = PrintCells(linha->cell, col1, col2, col3, 1);
-                if (linha->next != NULL)
-                    new->next = SelectLinesOPR(linha->next, col1, col2, col3, col4, col5, operador);
-                else{
+                new = (lines *) malloc(sizeof (lines));
+                new->cell = SelectCells(linha->cell, col1, col2, col3, 1);
+                if(linha->next == NULL)
                     new->next=NULL;
-                    return new;
-                }
-            } else {
-                if (linha->next != NULL) {
-                    free(new);
-                    return SelectLinesOPR(linha->next, col1, col2, col3, col4, col5, operador);
-                } else
-                    return NULL;
+                else           
+                    new->next = SelectLinesOPR(linha->next, col1, col2, col3, col4, col5, operador);
+            }else{
+                new=NULL;
+                new=SelectLinesOPR(linha->next, col1, col2, col3, col4, col5, operador);
             }
 
         } else if ((strcmp(operador, "!=")) == 0) {
@@ -1119,19 +1090,15 @@ lines *SelectLinesOPR(lines *linha, int col1, int col2, int col3, int col4, int 
                 aux_c = aux_c->next;
             val2 = aux_c->val;
             if (val1 != val2) {/*Aqui*/
-                new->cell = PrintCells(linha->cell, col1, col2, col3, 1);
-                if (linha->next != NULL)
-                    new->next = SelectLinesOPR(linha->next, col1, col2, col3, col4, col5, operador);
-                else{
+                new = (lines *) malloc(sizeof (lines));
+                new->cell = SelectCells(linha->cell, col1, col2, col3, 1);
+                if(linha->next == NULL)
                     new->next=NULL;
-                    return new;
-                }
-            } else {
-                if (linha->next != NULL) {
-                    free(new);
-                    return SelectLinesOPR(linha->next, col1, col2, col3, col4, col5, operador);
-                } else
-                    return NULL;
+                else           
+                    new->next = SelectLinesOPR(linha->next, col1, col2, col3, col4, col5, operador);
+            }else{
+                new=NULL;
+                new=SelectLinesOPR(linha->next, col1, col2, col3, col4, col5, operador);
             }
 
         }
@@ -1141,7 +1108,7 @@ lines *SelectLinesOPR(lines *linha, int col1, int col2, int col3, int col4, int 
 
 }
 
-void PrintAll(char *name_tab, char *column1, char *operador, float grade){
+void PrintAll(char *name_tab, char *column1, char *operador, int grade){
     tabels *aux=t;
     titles *aux_tit;
     int col1;
@@ -1169,7 +1136,7 @@ void PrintAll(char *name_tab, char *column1, char *operador, float grade){
     
 }
 
-void PrintAllSimple(lines *linha, int col1, char *operador, float grade) {
+void PrintAllSimple(lines *linha, int col1, char *operador, int grade) {
     cells *aux = linha->cell;
 
     if (aux != NULL) {
@@ -1188,7 +1155,7 @@ void PrintAllSimple(lines *linha, int col1, char *operador, float grade) {
         } else if ((strcmp(operador, "<=")) == 0) {
             for (int i = 1; i < col1; i++)
                 aux = aux->next;
-            if (aux->val <= grade) {
+            if (aux <= grade) {
                 aux = linha->cell;
                 while (aux != NULL) {
                     printf("%.1f\t", aux->val);
@@ -1200,7 +1167,7 @@ void PrintAllSimple(lines *linha, int col1, char *operador, float grade) {
         } else if ((strcmp(operador, ">")) == 0) {
             for (int i = 1; i < col1; i++)
                 aux = aux->next;
-            if (aux->val > grade) {
+            if (aux > grade) {
                 aux = linha->cell;
                 while (aux != NULL) {
                     printf("%.1f\t", aux->val);
@@ -1212,7 +1179,7 @@ void PrintAllSimple(lines *linha, int col1, char *operador, float grade) {
         } else if ((strcmp(operador, ">=")) == 0) {
             for (int i = 1; i < col1; i++)
                 aux = aux->next;
-            if (aux->val >= grade) {
+            if (aux >= grade) {
                 aux = linha->cell;
                 while (aux != NULL) {
                     printf("%.1f\t", aux->val);
@@ -1224,7 +1191,7 @@ void PrintAllSimple(lines *linha, int col1, char *operador, float grade) {
         } else if ((strcmp(operador, "=")) == 0 || (strcmp(operador, "==")) == 0) {
             for (int i = 1; i < col1; i++)
                 aux = aux->next;
-            if (aux->val == grade) {
+            if (aux == grade) {
                 aux = linha->cell;
                 while (aux != NULL) {
                     printf("%.1f\t", aux->val);
@@ -1236,7 +1203,7 @@ void PrintAllSimple(lines *linha, int col1, char *operador, float grade) {
         } else if ((strcmp(operador, "!=")) == 0) {
             for (int i = 1; i < col1; i++)
                 aux = aux->next;
-            if (aux->val != grade) {
+            if (aux != grade) {
                 aux = linha->cell;
                 while (aux != NULL) {
                     printf("%.1f\t", aux->val);
@@ -1252,17 +1219,17 @@ void PrintAllSimple(lines *linha, int col1, char *operador, float grade) {
 }
 
 void SelectAll(char *name_tab, char *new_tab, char *column1, char *operador, char *column2){
-    tabels *aux_t = t, *aux_tt, *new;
+    tabels *aux_t = t, *new;
     int col1, col2;
-
+    
     if ((strcmp(operador, "<")) != 0 && (strcmp(operador, "<=")) != 0 && (strcmp(operador, ">")) != 0 && (strcmp(operador, ">=")) != 0 && (strcmp(operador, "=")) != 0 && (strcmp(operador, "==")) != 0 && (strcmp(operador, "!=")) != 0) {
         printf("Operador nao reconhecido!\n");
         return;
     }
-
+    
     while ((strcmp(aux_t->nome, name_tab)) != 0 && aux_t != NULL)
         aux_t = aux_t->next;
-
+    
     if (aux_t != NULL) {
         new = (tabels *) malloc(sizeof (tabels));
         new->nome = new_tab;
@@ -1277,16 +1244,13 @@ void SelectAll(char *name_tab, char *new_tab, char *column1, char *operador, cha
     }
 
     aux_t = t;
-    aux_tt=t->next;
+
     if ((strcmp(aux_t->nome, new_tab)) == 0) {
         new->next = aux_t->next;
         t = new;
         return;
-    } else if(aux_tt ==NULL){
-        aux_t->next=new;
-        return;
-    }else{
-        while (aux_t->next != NULL) {
+    } else {
+        while (aux_t->next->next != NULL) {
             if ((strcmp(aux_t->next->nome, new_tab)) == 0) {
                 new->next = aux_t->next->next;
                 aux_t->next = new;
@@ -1295,7 +1259,7 @@ void SelectAll(char *name_tab, char *new_tab, char *column1, char *operador, cha
             aux_t = aux_t->next;
         }
     }
-    if ((strcmp(aux_t->nome, new_tab)) == 0) {
+    if ((strcmp(aux_t->next->nome, new_tab)) == 0) {
         new->next = aux_t->next->next;
         aux_t->next = new;
         return;
@@ -1317,11 +1281,11 @@ titles *SelectAllTitles(titles *titulo){
     
 }
 
-lines *SelectAllLines(lines *linha, int col1, int col2, char *operador) {
+lines *SelectAllLines(lines *linha, int col1, int col2, char *operador){
     float val1, val2;
     cells *aux_c = linha->cell;
-    lines *new=(lines *) malloc(sizeof (lines));
-
+    lines *new;
+    
     if (linha != NULL) {
         if ((strcmp(operador, "<")) == 0) {
             for (int i = 1; i < col1; i++)
@@ -1332,21 +1296,17 @@ lines *SelectAllLines(lines *linha, int col1, int col2, char *operador) {
                 aux_c = aux_c->next;
             val2 = aux_c->val;
             if (val1 < val2) {
+                new = (lines *) malloc(sizeof (lines));
                 new->cell = SelectALLCells(linha->cell);
-                if (linha->next != NULL)
-                    new->next = SelectAllLines(linha->next, col1, col2, operador);
-                else{
+                if(linha->next !=NULL)
+                new->next = SelectAllLines(linha->next, col1, col2, operador);
+                else
                     new->next=NULL;
-                    return new;
-                }
-            } else {
-                if (linha->next != NULL) {
-                    free(new);
-                    return SelectAllLines(linha->next, col1, col2, operador);
-                } else
-                    return NULL;
+            }else{
+                new=NULL;
+                new=SelectAllLines(linha->next, col1, col2, operador);
             }
-
+                
         } else if ((strcmp(operador, "<=")) == 0) {
             for (int i = 1; i < col1; i++)
                 aux_c = aux_c->next;
@@ -1356,19 +1316,12 @@ lines *SelectAllLines(lines *linha, int col1, int col2, char *operador) {
                 aux_c = aux_c->next;
             val2 = aux_c->val;
             if (val1 <= val2) {
+                new = (lines *) malloc(sizeof (lines));
                 new->cell = SelectALLCells(linha->cell);
-                if (linha->next != NULL)
-                    new->next = SelectAllLines(linha->next, col1, col2, operador);
-                else{
-                    new->next=NULL;
-                    return new;
-                }
-            } else {
-                if (linha->next != NULL) {
-                    free(new);
-                    return SelectAllLines(linha->next, col1, col2, operador);
-                } else
-                    return NULL;
+                new->next = SelectAllLines(linha->next, col1, col2, operador);
+            }else{
+                new=NULL;
+                new=SelectAllLines(linha->next, col1, col2, operador);
             }
 
         } else if ((strcmp(operador, ">")) == 0) {
@@ -1380,19 +1333,12 @@ lines *SelectAllLines(lines *linha, int col1, int col2, char *operador) {
                 aux_c = aux_c->next;
             val2 = aux_c->val;
             if (val1 > val2) {
-               new->cell = SelectALLCells(linha->cell);
-                if (linha->next != NULL)
-                    new->next = SelectAllLines(linha->next, col1, col2, operador);
-                else{
-                    new->next=NULL;
-                    return new;
-                }
-            } else {
-                if (linha->next != NULL) {
-                    free(new);
-                    return SelectAllLines(linha->next, col1, col2, operador);
-                } else
-                    return NULL;
+                new = (lines *) malloc(sizeof (lines));
+                new->cell = SelectALLCells(linha->cell);
+                new->next = SelectAllLines(linha->next, col1, col2, operador);
+            }else{
+                new=NULL;
+                new=SelectAllLines(linha->next, col1, col2, operador);
             }
 
         } else if ((strcmp(operador, ">=")) == 0) {
@@ -1404,20 +1350,14 @@ lines *SelectAllLines(lines *linha, int col1, int col2, char *operador) {
                 aux_c = aux_c->next;
             val2 = aux_c->val;
             if (val1 >= val2) {
+                new = (lines *) malloc(sizeof (lines));
                 new->cell = SelectALLCells(linha->cell);
-                if (linha->next != NULL)
-                    new->next = SelectAllLines(linha->next, col1, col2, operador);
-                else{
-                    new->next=NULL;
-                    return new;
-                }
-            } else {
-                if (linha->next != NULL) {
-                    free(new);
-                    return SelectAllLines(linha->next, col1, col2, operador);
-                } else
-                    return NULL;
+                new->next = SelectAllLines(linha->next, col1, col2, operador);
+            }else{
+                new=NULL;
+                new=SelectAllLines(linha->next, col1, col2, operador);
             }
+
         } else if ((strcmp(operador, "=")) == 0 || (strcmp(operador, "==")) == 0) {
             for (int i = 1; i < col1; i++)
                 aux_c = aux_c->next;
@@ -1427,19 +1367,12 @@ lines *SelectAllLines(lines *linha, int col1, int col2, char *operador) {
                 aux_c = aux_c->next;
             val2 = aux_c->val;
             if (val1 == val2) {
+                new = (lines *) malloc(sizeof (lines));
                 new->cell = SelectALLCells(linha->cell);
-                if (linha->next != NULL)
-                    new->next = SelectAllLines(linha->next, col1, col2, operador);
-                else{
-                    new->next=NULL;
-                    return new;
-                }
-            } else {
-                if (linha->next != NULL) {
-                    free(new);
-                    return SelectAllLines(linha->next, col1, col2, operador);
-                } else
-                    return NULL;
+                new->next = SelectAllLines(linha->next, col1, col2, operador);
+            }else{
+                new=NULL;
+                new=SelectAllLines(linha->next, col1, col2, operador);
             }
 
         } else if ((strcmp(operador, "!=")) == 0) {
@@ -1451,19 +1384,12 @@ lines *SelectAllLines(lines *linha, int col1, int col2, char *operador) {
                 aux_c = aux_c->next;
             val2 = aux_c->val;
             if (val1 != val2) {
+                new = (lines *) malloc(sizeof (lines));
                 new->cell = SelectALLCells(linha->cell);
-                if (linha->next != NULL)
-                    new->next = SelectAllLines(linha->next, col1, col2, operador);
-                else{
-                    new->next=NULL;
-                    return new;
-                }
-            } else {
-                if (linha->next != NULL) {
-                    free(new);
-                    return SelectAllLines(linha->next, col1, col2, operador);
-                } else
-                    return NULL;
+                new->next = SelectAllLines(linha->next, col1, col2, operador);
+            }else{
+                new=NULL;
+                new=SelectAllLines(linha->next, col1, col2, operador);
             }
 
         }

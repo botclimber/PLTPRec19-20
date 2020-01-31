@@ -7,28 +7,36 @@
 
 %union {
 	char* str;
-	//LIST
+	float flt;
 }
 
-%token<str> VAR
-%token LOAD SAVE SELECT PRINT AS FROM  
+%token<flt> _FLT
+%token<str> VAR FILE_NAME CAR
+%token LOAD SAVE SELECT PRINT AS FROM WHERE  
 
 %type<str> listvar
 %%
 
-sql : program { printf("first function (startTable)"); };
-
-program : comand
-	| comand program { printf("command program %s", $1); }
+sql 	: program
 	;
 
-comand : SELECT listvar FROM VAR AS VAR ';' 	{ printf("SELECT  %s | %s ", $4, $6); }
-	| PRINT listvar FROM VAR ';' 		{ printf("[PRINT] listvar = %s | VAR = %s \n ", $2, $4); }
-	| LOAD '"'VAR'"' AS VAR ';'		{ /*$$ = LoadTable(NULL, $3, $6 );*/ $$ = 'teste'; }
+program : command
+	| command program
 	;
 
-listvar : VAR 					{ printf("%s \n", $1); }
-	| listvar ',' VAR 			{ printf("listvar = %s | VAR = %s \n", $1, $3); }
+command : SELECT listvar FROM VAR AS VAR ';' 			{ SelectSimple($2, $4, $6); }
+	| SELECT '*' FROM VAR AS VAR WHERE VAR CAR VAR ';'	{ SelectAll($4,$6,$8, $9, $10); }
+	| SELECT listvar FROM VAR AS VAR WHERE VAR CAR VAR ';'  { SelectComplex($2, $4, $6, $8, $9, $10); }
+	| PRINT listvar FROM VAR WHERE VAR CAR _FLT ';'		{ Print2ColumnsVAL($2, $4, $6, $7, $8); }
+	| PRINT listvar FROM VAR WHERE VAR CAR VAR ';'		{ Print2ColumnsOPR($2, $4, $6, $7, $8); }
+	| PRINT '*' FROM VAR WHERE VAR CAR _FLT ';'		{ PrintAll($4,$6,$7,$8); }
+	| PRINT listvar FROM VAR ';' 				{ Print2Columns($2, $4); }
+	| LOAD '"'FILE_NAME'"' AS VAR ';'			{ LoadTable($3, $6); }
+	| SAVE VAR AS '"'FILE_NAME'"' ';'			{ SaveTable($2, $5); }
+	;
+
+listvar : VAR 					{ $$ = $1; }
+	| listvar','VAR 			{ $$ = dataStr($1,$3); }
 	;
 
 %%

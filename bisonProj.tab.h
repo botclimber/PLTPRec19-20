@@ -45,13 +45,17 @@ extern int yydebug;
 # define YYTOKENTYPE
   enum yytokentype
   {
-    VAR = 258,
-    LOAD = 259,
-    SAVE = 260,
-    SELECT = 261,
-    PRINT = 262,
-    AS = 263,
-    FROM = 264
+    _FLT = 258,
+    VAR = 259,
+    FILE_NAME = 260,
+    CAR = 261,
+    LOAD = 262,
+    SAVE = 263,
+    SELECT = 264,
+    PRINT = 265,
+    AS = 266,
+    FROM = 267,
+    WHERE = 268
   };
 #endif
 
@@ -63,9 +67,9 @@ union YYSTYPE
 #line 8 "bisonProj.y" /* yacc.c:1909  */
 
 	char* str;
-	//LIST
+	float flt;
 
-#line 69 "bisonProj.tab.h" /* yacc.c:1909  */
+#line 73 "bisonProj.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

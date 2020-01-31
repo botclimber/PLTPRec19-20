@@ -68,7 +68,53 @@ char *dataStr(char *param1, char *param2); // CONCATENA
 //Funções
 int main(){
 
-	yyparse();
+	//LOAD "ficheiro.tsv" AS notas;
+	LoadTable("teste2.txt", "notas");
+	//PrintAll("notas","nota1","<",20);
+	SelectComplex("nr,nota1,nota2", "notas", "xyz", "nota1", "<", "nota2");
+	PrintAll("xyz","nota1","<",20);
+	SelectComplex("nr,nota1,nota2", "notas", "xyz", "nota1", "<", "nota2");
+	PrintAll("xyz","nota1","<",20);
+
+	//SelectSimple("nota1,nota2,nota3", "notas", "xyz");	
+	//PrintAll("xyz","nota1","<",20);
+
+	/*printf("Com sucesso1!\n\n");
+        LoadTable("teste2.txt", "hoje2");
+	printf("Com sucesso2!\n\n");
+        LoadTable("teste3.txt", "hoje3");
+	printf("Com sucesso3!\n\n");
+        //PRINT nr, nota1 FROM notas;
+        Print2Columns("nota3,nota1", "hoje3");
+        printf("\n\n");
+        //PRINT nr, nota1 FROM notas WHERE nota3 < 10;
+        Print2ColumnsVAL("nota1,nota2", "hoje2", "notaF", ">=", 10);
+        puts("\n\n");
+        //PRINT nr, nota1 FROM notas WHERE nota3 < nota1;
+        Print2ColumnsOPR("nota1,nota2", "hoje1", "nota3", "<", "nota1");
+        puts("\n\n");
+        //SELECT nr, nota1, nota3 FROM notas AS pauta;
+        SelectSimple("nr,nota2,nota1", "hoje3", "hoje4");
+        Print2Columns("nr,nota1", "hoje4");
+        puts("\n\n");
+        //SELECT nr, nota1, nota3 FROM notas AS pauta WHERE nota2 < nota3;
+        SelectComplex("nr,nota1,nota3", "hoje3", "hoje5", "nota1", "<", "nota3");
+        Print2Columns("nr,nota3", "hoje5");
+        puts("\n\n");
+        //PRINT * FROM notas WHERE nota3 < 10;
+        PrintAll("hoje3", "nota1", "<", 20);
+        //puts("\n\n");
+        //SELECT * FROM notas AS pauta WHERE nota2 < nota3;
+        //SelectAll("hoje3", "daniel", "nr", "<", "nota2");
+        //PrintAll("daniel", "nota1", "<", 20);
+        //puts("\n\n");
+        //SAVE notas AS "ficheiro2.tsv";
+        //SaveTable("hoje4", "danielPanilas.txt");
+        //system("pause");
+	/*yyparse();
+	return 0;*/
+
+	//yyparse();
 	return 0;
 }
 
@@ -786,7 +832,6 @@ void SelectSimple(char *columns, char *name_tab, char *new_tab){
          aux_t=aux_t->next;
      }   
     }
-
     if((strcmp(aux_t->nome, new_tab))==0){
         new->next=aux_t->next->next;
              aux_t->next=new;
@@ -794,11 +839,10 @@ void SelectSimple(char *columns, char *name_tab, char *new_tab){
     }else{
         aux_t->next=new;
     }
-
 }
 
 titles *SelectTitles(char *column1, char *column2, char *column3, int count){
-    titles *aux = NULL;
+    titles *aux;
 
     aux=(titles *)malloc(sizeof(titles));
     
