@@ -55,7 +55,8 @@ extern int yydebug;
     PRINT = 265,
     AS = 266,
     FROM = 267,
-    WHERE = 268
+    WHERE = 268,
+    DELETE = 269
   };
 #endif
 
@@ -69,7 +70,7 @@ union YYSTYPE
 	char* str;
 	float flt;
 
-#line 73 "bisonProj.tab.h" /* yacc.c:1909  */
+#line 74 "bisonProj.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

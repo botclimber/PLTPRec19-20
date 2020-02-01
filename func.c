@@ -64,12 +64,146 @@ cells *SelectALLCells(cells *celula);
 //SAVE notas AS "ficheiro2.tsv";
 void SaveTable(char *nameTab, char *nameFich);
 char *dataStr(char *param1, char *param2); // CONCATENA
+void PrintAllAll(char *name);
+void SelectAllAll(char *name_tab, char *new_tab);
+lines *LoadLines(lines *pointer);
+void Delete(char *delete_tab);
 
 //Funções
 int main(){
 
 	yyparse();
 	return 0;
+}
+
+void Delete(char *delete_tab){
+    tabels *aux=t, *auxtt=t->next;
+
+    if((strcmp(aux->nome, delete_tab)) == 0){
+        t=aux->next;
+        return;
+    }
+    if((strcmp(auxtt->nome, delete_tab)) == 0){
+        t->next=auxtt->next;
+        return;
+    }
+    do{
+        aux=auxtt;
+        auxtt=auxtt->next;
+        if((strcmp(auxtt->nome, delete_tab)) == 0){
+            aux->next=auxtt->next;
+            printf("Eliminada com sucesso!\n");
+            return;
+        }
+    }while(auxtt->next!=NULL);
+    printf("Tabela com o nome %s nao existe!\n", delete_tab);
+}
+
+void SelectAllAll(char *name_tab, char *new_tab){
+    tabels *aux_t=t, *new, *aux_tt;
+
+
+     while ((strcmp(aux_t->nome, name_tab)) != 0){
+        aux_t = aux_t->next;
+        if(aux_t==NULL){
+            printf("Tabela com o nome %s nao encontrada!\n", name_tab);
+            return;
+        }
+    }
+
+    new=(tabels *)malloc(sizeof(tabels));
+    new->nome=new_tab;
+    new->titulos=SelectAllTitles(aux_t->titulos);
+    new->linhas=LoadLines(aux_t->linhas);
+    new->next=NULL;
+
+    aux_t = t;
+    aux_tt=t->next;
+    if ((strcmp(aux_t->nome, new_tab)) == 0) {
+        new->next = aux_t->next;
+        t = new;
+        return;
+    } else if(aux_tt ==NULL){
+        aux_t->next=new;
+        return;
+    }else{
+        while (aux_t->next != NULL) {
+            if ((strcmp(aux_t->next->nome, new_tab)) == 0) {
+                new->next = aux_t->next->next;
+                aux_t->next = new;
+                return;
+            }
+            aux_t = aux_t->next;
+        }
+    }
+    if ((strcmp(aux_t->nome, new_tab)) == 0) {
+        new->next = aux_t->next->next;
+        aux_t->next = new;
+        return;
+    } else {
+        aux_t->next = new;
+    }
+
+
+}
+
+lines *LoadLines(lines *pointer){
+    lines *aux=pointer, *new=(lines *)malloc(sizeof(lines));
+
+    if(pointer != NULL){
+        new->cell=SelectALLCells(aux->cell);
+        if(aux->next!=NULL)
+        new->next=LoadLines(aux->next);
+        else
+            new->next=NULL;
+    }
+    return new;
+}
+
+void PrintAllAll(char *name){
+    tabels *aux_t=t;
+    titles *aux_tit;
+    lines *aux_l;
+    cells *aux_c;
+
+    while ((strcmp(aux_t->nome, name)) != 0){
+        aux_t = aux_t->next;
+        if(aux_t==NULL){
+            printf("Tabela com o nome %s nao encontrada!\n", name);
+            return;
+        }
+    }
+
+    aux_tit=aux_t->titulos;
+
+    while(aux_tit != NULL){
+        printf("%s\t", aux_tit->title);
+        if(aux_tit->next==NULL){
+            puts("\n");
+            break;
+        }
+        aux_tit=aux_tit->next;
+    }
+
+    aux_l=aux_t->linhas;
+
+    while(aux_l!=NULL){
+        aux_c=aux_l->cell;
+        while(aux_c!=NULL){
+            printf("%.1f\t", aux_c->val);
+            if(aux_c->next==NULL){
+                puts("\n");
+                break;
+            }
+            aux_c=aux_c->next;
+        }
+        if(aux_l->next==NULL)
+            break;
+        aux_l=aux_l->next;
+    }
+
+    puts("\n\n");
+
 }
 
 char *dataStr(char *param1, char *param2){

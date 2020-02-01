@@ -24,6 +24,8 @@ FROM|from	{ return FROM; }
 
 WHERE|where	{ return WHERE;}
 
+DELETE|delete	{ return DELETE; }
+
 {file_name}	{  yylval.str = strdup(yytext); return FILE_NAME; }
 {_flt}		{  yylval.flt = atof(yytext); return _FLT; }
 {var}		{  yylval.str = strdup(yytext); return VAR; }
